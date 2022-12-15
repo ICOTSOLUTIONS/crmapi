@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\{ Admin };
 |
 */
 
+Route::post('contact',[Admin\AuthController::class,'contact']);
 Route::post('signup',[Admin\AuthController::class,'signup_process']);
 Route::post('login',[Admin\AuthController::class,'login_process']);
 Route::post('reset',[Admin\AuthController::class,'reset_password_process']);

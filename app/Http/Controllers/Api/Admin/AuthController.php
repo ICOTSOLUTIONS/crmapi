@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use phpDocumentor\Reflection\PseudoTypes\True_;
 
 class AuthController extends Controller
 {
@@ -183,5 +184,32 @@ class AuthController extends Controller
     {
         auth()->logout();
         return response()->json(['message' => "Logout Successfully"], 200);
+    }
+
+    public function contact(Request $request)
+    {
+        $request->validate([
+
+        ]);
+        $email = 'icotsolutions@gmail.com';
+        $data = [
+            'phone' => $request->phone,
+            'name' => $request->name,
+            'Message' => $request->Message,
+        ];
+
+        try {
+            Mail::send(
+                'admin.contact',
+                ['data' => $data],
+                function ($message) use ($email) {
+                    $message->to($email);
+                    $message->subject('Contact');
+                }
+            );
+            return response()->json(['status' => True, 'Message' => 'Contact Successfully'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'Message' => $th->getMessage()]);
+        }
     }
 }
