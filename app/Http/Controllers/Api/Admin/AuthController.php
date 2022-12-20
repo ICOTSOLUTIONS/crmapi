@@ -25,7 +25,7 @@ class AuthController extends Controller
             'password' => 'required|min:3',
         ]);
         if ($valid->fails()) {
-            return response()->json(['status' => 'fails', 'message' => 'Validation errors', 'errors' => $valid->errors()]);
+            return response()->json(['status' => false, 'message' => 'Validation errors', 'errors' => $valid->errors()]);
         }
         try {
             DB::beginTransaction();
@@ -47,10 +47,10 @@ class AuthController extends Controller
             if (!$user->save()) throw new Error("User not Added!");
             DB::commit();
             $client = User::with('role')->where('id', $user->id)->get();
-            return response()->json(['message' => "User Successfully Added", 'user' => $client,], 200);
+            return response()->json(['status' => true, 'message' => "User Successfully Added", 'user' => $client,], 200);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return response()->json(['message' => "User not Added"], 500);
+            return response()->json(['status' => true, 'message' => "User not Added"]);
         }
     }
 
@@ -62,7 +62,7 @@ class AuthController extends Controller
         ]);
 
         if ($valid->fails()) {
-            return response()->json(['status' => 'fails', 'message' => 'Validation errors', 'errors' => $valid->errors()]);
+            return response()->json(['status' => false, 'message' => 'Validation errors', 'errors' => $valid->errors()]);
         }
 
         if (auth()->attempt([
@@ -72,7 +72,7 @@ class AuthController extends Controller
         ])) {
             $user = auth()->user();
             $token = $user->createToken('token')->accessToken;
-            return response()->json(['token' => $token, 'user' => $user], 200);
+            return response()->json(['status' => true, 'message' => 'Successfully Login', 'token' => $token, 'user' => $user], 200);
         } elseif (auth()->attempt([
             'username' => $request->email,
             'password' => $request->password,
@@ -80,9 +80,9 @@ class AuthController extends Controller
         ])) {
             $user = auth()->user();
             $token = $user->createToken('token')->accessToken;
-            return response()->json(['token' => $token, 'user' => $user], 200);
+            return response()->json(['status' => true, 'message' => 'Successfully Login', 'token' => $token, 'user' => $user], 200);
         } else {
-            return response()->json(['error' => 'Invalid Credentials'], 500);
+            return response()->json(['status' => false, 'message' => 'Invalid Credentials']);
         }
     }
 
@@ -92,7 +92,7 @@ class AuthController extends Controller
             'email' => 'required|email|exists:users,email',
         ]);
         if ($valid->fails()) {
-            return response()->json(['status' => 'fails', 'message' => 'Validation errors', 'errors' => $valid->errors()]);
+            return response()->json(['status' => false, 'message' => 'Validation errors', 'errors' => $valid->errors()]);
         }
         $user = User::where('email', $request->email)->first();
         if (!empty($user)) {
@@ -104,9 +104,9 @@ class AuthController extends Controller
                 $message->to($user->email);
                 $message->subject('Reset Password');
             });
-            return response()->json(['message' => "Reset Email send to {$email}", 'token' => $token, 'user' => $user,], 200);
+            return response()->json(['status' => true, 'message' => "Reset Email send to {$email}", 'token' => $token, 'user' => $user,], 200);
         } else {
-            return response()->json(['message' => "User not found"], 500);
+            return response()->json(['status' => false, 'message' => "User not found"]);
         }
     }
 
@@ -119,23 +119,23 @@ class AuthController extends Controller
             'c_password' => 'required|same:password',
         ]);
         if ($valid->fails()) {
-            return response()->json(['status' => 'fails', 'message' => 'Validation errors', 'errors' => $valid->errors()]);
+            return response()->json(['status' => false, 'message' => 'Validation errors', 'errors' => $valid->errors()]);
         }
         $user = User::where('email', $request->email)->where('token', $request->token)->first();
-        if (empty($user)) return response()->json(['message' => "User not found"], 500);
-        if (Hash::check($request->password, $user->password)) return response()->json(['message', 'Please use different from current password.'], 500);
+        if (empty($user)) return response()->json(['message' => "User not found"]);
+        if (Hash::check($request->password, $user->password)) return response()->json(['message', 'Please use different from current password.']);
         $user->password = Hash::make($request->password);
         $user->token = null;
         $user->save();
-        return response()->json(['message' => "Password reset succesfully", 'user' => $user,], 200);
+        return response()->json(['status' => true, 'message' => "Password reset succesfully", 'user' => $user,], 200);
     }
 
     public function edit_profile($id)
     {
-        if (empty($id)) return response()->json(['message', 'id not found'], 500);
+        if (empty($id)) return response()->json(['message', 'id not found']);
         $client = User::with('client_detail')->where('id', $id)->first();
         if (!empty($client)) return response()->json(['client', $client ?? []], 200);
-        else return response()->json(['message', 'client not found'], 500);
+        else return response()->json(['message', 'client not found']);
     }
 
     public function update_profile(Request $request)
@@ -151,7 +151,7 @@ class AuthController extends Controller
                 'address' => 'required',
             ]);
             if ($valid->fails()) {
-                return response()->json(['status' => 'fails', 'message' => 'Validation errors', 'errors' => $valid->errors()]);
+                return response()->json(['status' => false, 'message' => 'Validation errors', 'errors' => $valid->errors()]);
             }
             try {
                 DB::beginTransaction();
@@ -172,28 +172,27 @@ class AuthController extends Controller
                 if (!$client->save()) throw new Error("User not Added!");
                 DB::commit();
                 $client = User::with('role')->where('id', $client->id)->get();
-                return response()->json(['message' => "User Successfully Updated", 'client' => $client,], 200);
+                return response()->json(['status' => true, 'message' => "User Successfully Updated", 'client' => $client,], 200);
             } catch (\Throwable $th) {
                 DB::rollBack();
-                return response()->json(['message' => "User not Update"], 500);
+                return response()->json(['status' => false, 'message' => "User not Update"]);
             }
-        } else return response()->json(['message', 'User not found'], 500);
+        } else return response()->json(['status' => false, 'message', 'User not found']);
     }
 
     public function logout()
     {
         auth()->logout();
-        return response()->json(['message' => "Logout Successfully"], 200);
+        return response()->json(['status' => true, 'message' => "Logout Successfully"], 200);
     }
 
     public function contact(Request $request)
     {
-        $request->validate([
-
-        ]);
+        $request->validate([]);
         $email = 'icotsolutions@gmail.com';
         $data = [
             'phone' => $request->phone,
+            'email' => $request->email,
             'name' => $request->name,
             'Message' => $request->Message,
         ];
@@ -207,7 +206,7 @@ class AuthController extends Controller
                     $message->subject('Contact');
                 }
             );
-            return response()->json(['status' => True, 'Message' => 'Contact Successfully'], 200);
+            return response()->json(['status' => true, 'Message' => 'Contact Successfully'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'Message' => $th->getMessage()]);
         }
