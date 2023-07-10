@@ -49,7 +49,7 @@ class AuthController extends Controller
             return response()->json(['status' => true, 'message' => "User Successfully Added", 'user' => $client], 200);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return response()->json(['status' => true, 'message' => "User not Added"], 500);
+            return response()->json(['status' => false, 'message' => "User not Added"], 500);
         }
     }
 
@@ -121,8 +121,8 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => 'Validation errors', 'errors' => $valid->errors()], 422);
         }
         $user = User::where('email', $request->email)->where('token', $request->token)->first();
-        if (empty($user)) return response()->json(['message' => "User not found"], 404);
-        if (Hash::check($request->password, $user->password)) return response()->json(['message', 'Please use different from current password.'], 500);
+        if (empty($user)) return response()->json(['status' => false,'message' => "User not found"], 404);
+        if (Hash::check($request->password, $user->password)) return response()->json(['status' => false, 'message', 'Please use different from current password.'], 500);
         $user->password = Hash::make($request->password);
         $user->token = null;
         $user->save();
@@ -133,8 +133,8 @@ class AuthController extends Controller
     {
         if (empty($id)) return response()->json(['message', 'id not found'], 404);
         $client = User::where('id', $id)->first();
-        if (!empty($client)) return response()->json(['client', $client ?? []], 200);
-        else return response()->json(['message', 'client not found'], 404);
+        if (!empty($client)) return response()->json(['status' => true, 'message' => "User found", 'user' => $client ?? []], 200);
+        else return response()->json(['status' => false, 'message', 'User not found'], 404);
     }
 
     public function update_profile(Request $request)
