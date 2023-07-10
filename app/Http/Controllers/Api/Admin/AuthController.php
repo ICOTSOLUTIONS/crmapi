@@ -132,7 +132,7 @@ class AuthController extends Controller
     public function edit_profile($id)
     {
         if (empty($id)) return response()->json(['message', 'id not found'], 404);
-        $client = User::with('client_detail')->where('id', $id)->first();
+        $client = User::where('id', $id)->first();
         if (!empty($client)) return response()->json(['client', $client ?? []], 200);
         else return response()->json(['message', 'client not found'], 404);
     }
