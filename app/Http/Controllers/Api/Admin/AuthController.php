@@ -122,7 +122,7 @@ class AuthController extends Controller
         }
         $user = User::where('email', $request->email)->where('token', $request->token)->first();
         if (empty($user)) return response()->json(['status' => false,'message' => "User not found"], 404);
-        if (Hash::check($request->password, $user->password)) return response()->json(['status' => false, 'message', 'Please use different from current password.'], 500);
+        if (Hash::check($request->password, $user->password)) return response()->json(['status' => false, 'message'=> 'Please use different from current password.'], 500);
         $user->password = Hash::make($request->password);
         $user->token = null;
         $user->save();
