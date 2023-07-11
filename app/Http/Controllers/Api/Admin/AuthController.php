@@ -154,7 +154,6 @@ class AuthController extends Controller
             }
             try {
                 DB::beginTransaction();
-                $client->role_id = 2;
                 $client->first_name =  $request->fname;
                 $client->last_name =  $request->lname;
                 $client->username =  $request->username;
@@ -173,7 +172,7 @@ class AuthController extends Controller
                 return response()->json(['status' => true, 'message' => "User Successfully Updated", 'user' => $client,], 200);
             } catch (\Throwable $th) {
                 DB::rollBack();
-                return response()->json(['status' => false, 'message' => "User not Update"], 500);
+                return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
             }
         } else return response()->json(['status' => false, 'message', 'User not found'], 404);
     }
