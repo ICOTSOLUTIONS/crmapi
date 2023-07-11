@@ -155,11 +155,10 @@ class AuthController extends Controller
             try {
                 DB::beginTransaction();
                 $client->role_id = 2;
-                $client->first_name =  $request->first_name;
-                $client->last_name =  $request->last_name;
+                $client->first_name =  $request->fname;
+                $client->last_name =  $request->lname;
                 $client->username =  $request->username;
                 $client->email = $request->email;
-                $client->password = Hash::make($request->password);
                 $client->phone = $request->phone;
                 $client->address = $request->address;
                 if (!empty($request->image)) {
@@ -168,10 +167,10 @@ class AuthController extends Controller
                     $image->storeAs('image', $filename, "public");
                     $client->image = "image/" . $filename;
                 }
-                if (!$client->save()) throw new Error("User not Added!");
+                if (!$client->save()) throw new Error("User not Update!");
                 DB::commit();
                 $client = User::with('role')->where('id', $client->id)->get();
-                return response()->json(['status' => true, 'message' => "User Successfully Updated", 'client' => $client,], 200);
+                return response()->json(['status' => true, 'message' => "User Successfully Updated", 'user' => $client,], 200);
             } catch (\Throwable $th) {
                 DB::rollBack();
                 return response()->json(['status' => false, 'message' => "User not Update"], 500);
