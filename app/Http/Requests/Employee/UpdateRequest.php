@@ -25,7 +25,6 @@ class UpdateRequest extends FormRequest
             'first_name' => "required",
             'last_name' => "required",
             'email' => "required|email|unique:users,email," . $this->route('employee')->id,
-            'password' => "required|confirmed",
             'image' => "nullable",
         ];
     }
@@ -36,7 +35,6 @@ class UpdateRequest extends FormRequest
             'first_name' => "First name",
             'last_name' => "Last name",
             'email' => "Email",
-            'password' => "Password",
             'image' => "Image",
         ];
     }
