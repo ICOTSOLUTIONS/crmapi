@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\{ AuthController };
+use App\Http\Controllers\Api\{ AuthController, EmployeeController};
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,4 +24,8 @@ Route::middleware('auth:api')->group(function(){
     Route::post('/profile-update', [AuthController::class, 'profileUpdate']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::get('logout',[AuthController::class,'logout']);
+
+    Route::apiResources([
+        'employee' => EmployeeController::class,
+    ]);
 });
