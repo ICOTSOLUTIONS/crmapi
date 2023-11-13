@@ -21,7 +21,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = User::with('role')->where('role_id', 2);
+            $query = User::with('role')->where('role_id', 3);
             if (!empty($request->skip))
                 $query->skip($request->skip);
             if (!empty($request->take))
@@ -53,7 +53,7 @@ class EmployeeController extends Controller
                 'image',
                 'password',
             );
-            $inputs['role_id'] = 2;
+            $inputs['role_id'] = 3;
             $inputs['password'] = Hash::make($request->password);
             if (!empty($request->image)) {
                 $image = $request->image;
@@ -83,7 +83,7 @@ class EmployeeController extends Controller
      */
     public function show(User $employee)
     {
-        if (empty($employee) || $employee->role_id != 2) {
+        if (empty($employee) || $employee->role_id != 3) {
             return response()->json([
                 'status' => false,
                 'message' => "Employee not found",
@@ -104,7 +104,7 @@ class EmployeeController extends Controller
      */
     public function update(UpdateRequest $request, User $employee)
     {
-        if (empty($employee) || $employee->role_id != 2) {
+        if (empty($employee) || $employee->role_id != 3) {
             return response()->json([
                 'status' => false,
                 'message' => "Employee not found",
@@ -146,7 +146,7 @@ class EmployeeController extends Controller
      */
     public function destroy(User $employee)
     {
-        if (empty($employee) || $employee->role_id != 2) {
+        if (empty($employee) || $employee->role_id != 3) {
             return response()->json([
                 'status' => false,
                 'message' => "Employee not found",
