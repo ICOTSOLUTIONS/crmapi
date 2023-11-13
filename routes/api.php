@@ -28,4 +28,6 @@ Route::middleware('auth:api')->group(function(){
     Route::apiResources([
         'employee' => EmployeeController::class,
     ]);
+    Route::get('/status/{id}', [EmployeeController::class, 'status_change']);
+
 });
