@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\{ Admin };
+use App\Http\Controllers\Api\{ AuthController };
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,13 +13,13 @@ use App\Http\Controllers\Api\{ Admin };
 |
 */
 
-Route::post('contact',[Admin\AuthController::class,'contact']);
-Route::post('signup',[Admin\AuthController::class,'signup_process']);
-Route::post('login',[Admin\AuthController::class,'login_process']);
-Route::post('reset',[Admin\AuthController::class,'reset_password_process']);
-Route::post('forgot',[Admin\AuthController::class,'forgot_process']);
+Route::post('contact',[AuthController::class,'contact']);
+Route::post('signup',[AuthController::class,'signup_process']);
+Route::post('login',[AuthController::class,'login_process']);
+Route::post('reset',[AuthController::class,'reset_password_process']);
+Route::post('forgot',[AuthController::class,'forgot_process']);
 Route::middleware('auth:api')->group(function(){
-    Route::get('profile/{id}',[Admin\AuthController::class,'edit_profile']);
-    Route::post('profile/update',[Admin\AuthController::class,'update_profile']);
-    Route::get('logout',[Admin\AuthController::class,'logout']);
+    Route::get('profile/{id}',[AuthController::class,'edit_profile']);
+    Route::post('profile/update',[AuthController::class,'update_profile']);
+    Route::get('logout',[AuthController::class,'logout']);
 });

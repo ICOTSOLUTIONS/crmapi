@@ -18,5 +18,13 @@ class RoleSeeder extends Seeder
         $role = new Role();
         $role->name = 'admin';
         $role->save();
+
+        $role = new Role();
+        $role->name = 'sub_admin';
+        $role->save();
+
+        $role = new Role();
+        $role->name = 'employee';
+        $role->save();
     }
 }

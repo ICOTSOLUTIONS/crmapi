@@ -18,10 +18,10 @@ class UserSeeder extends Seeder
     {
         $admin = new User();
         $admin->role_id = 1;
-        $admin->username = 'admin';
-        $admin->email = 'admin@gmail.com';
+        $admin->first_name = 'Icot';
+        $admin->last_name = 'Icot Solutions';
+        $admin->email = 'icotstest@gmail.com';
         $admin->password = Hash::make(12345678);
-        $admin->phone = 123456789;
         $admin->save();
     }
 }
