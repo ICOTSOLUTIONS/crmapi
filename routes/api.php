@@ -22,5 +22,6 @@ Route::post('contact',[AuthController::class,'contact']);
 Route::middleware('auth:api')->group(function(){
     Route::get('/current-user', [AuthController::class, 'currentUser']);
     Route::post('/profile-update', [AuthController::class, 'profileUpdate']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::get('logout',[AuthController::class,'logout']);
 });
