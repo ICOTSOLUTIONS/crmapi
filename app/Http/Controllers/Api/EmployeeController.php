@@ -21,7 +21,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = User::with('role');
+            $query = User::with('role')->where('role_id', 2);
             if (!empty($request->skip))
                 $query->skip($request->skip);
             if (!empty($request->take))
