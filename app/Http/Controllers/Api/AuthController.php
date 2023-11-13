@@ -31,7 +31,7 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
     }
-    
+
     public function login(LoginRequest $request)
     {
         try {
@@ -54,11 +54,11 @@ class AuthController extends Controller
             $request->validate(['email' => 'required|email|exists:users,email']);
             $user = User::where('email', $request->email)->first();
             $otp = rand(100000, 999999);
-            $token = DB::select("SELECT * FROM password_reset_tokens WHERE email = ?", [$user->email]);
+            $token = DB::select("SELECT * FROM password_resets WHERE email = ?", [$user->email]);
             if (isset($token[0])) {
-                DB::update('update password_reset_tokens set token = ? where email = ?', [$otp, $user->email]);
+                DB::update('update password_resets set token = ? where email = ?', [$otp, $user->email]);
             } else {
-                DB::insert("insert into password_reset_tokens (email, token) values (?, ?)", [$user->email, $otp]);
+                DB::insert("insert into password_resets (email, token) values (?, ?)", [$user->email, $otp]);
             }
 
             Mail::send('mail.reset-password', ['otp' => $otp, 'email' => $user->email], function ($message) use ($user) {
@@ -82,7 +82,7 @@ class AuthController extends Controller
         try {
             DB::beginTransaction();
             User::where('email', $request->email)->update(['password' => Hash::make($request->password)]);
-            DB::delete('DELETE FROM password_reset_tokens WHERE email = ?', [$request->email]);
+            DB::delete('DELETE FROM password_resets WHERE email = ?', [$request->email]);
             DB::commit();
             return response()->json([
                 'status' => true,
