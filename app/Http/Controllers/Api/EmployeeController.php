@@ -83,7 +83,7 @@ class EmployeeController extends Controller
      */
     public function show(User $employee)
     {
-        if (empty($employee)) {
+        if (empty($employee) || $employee->role_id != 2) {
             return response()->json([
                 'status' => false,
                 'message' => "Employee not found",
@@ -104,7 +104,7 @@ class EmployeeController extends Controller
      */
     public function update(UpdateRequest $request, User $employee)
     {
-        if (empty($employee)) {
+        if (empty($employee) || $employee->role_id != 2) {
             return response()->json([
                 'status' => false,
                 'message' => "Employee not found",
@@ -146,7 +146,7 @@ class EmployeeController extends Controller
      */
     public function destroy(User $employee)
     {
-        if (empty($employee)) {
+        if (empty($employee) || $employee->role_id != 2) {
             return response()->json([
                 'status' => false,
                 'message' => "Employee not found",
