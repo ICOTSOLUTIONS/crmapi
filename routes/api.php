@@ -13,13 +13,14 @@ use App\Http\Controllers\Api\{ AuthController };
 |
 */
 
+// Auth
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+
 Route::post('contact',[AuthController::class,'contact']);
-Route::post('signup',[AuthController::class,'signup_process']);
-Route::post('login',[AuthController::class,'login_process']);
-Route::post('reset',[AuthController::class,'reset_password_process']);
-Route::post('forgot',[AuthController::class,'forgot_process']);
 Route::middleware('auth:api')->group(function(){
-    Route::get('profile/{id}',[AuthController::class,'edit_profile']);
-    Route::post('profile/update',[AuthController::class,'update_profile']);
+    Route::get('/current-user', [AuthController::class, 'currentUser']);
+    Route::post('/profile-update', [AuthController::class, 'profileUpdate']);
     Route::get('logout',[AuthController::class,'logout']);
 });

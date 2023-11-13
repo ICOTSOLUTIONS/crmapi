@@ -20,6 +20,18 @@ use Throwable;
 
 class AuthController extends Controller
 {
+    public function currentUser()
+    {
+        try {
+            $user = User::find(auth()->user()->id);
+            if (empty($user))
+                throw new Error('User not found');
+            return response()->json(['status' => true, 'message' => 'User found', 'user' => new UserResource($user->load('role'))]);
+        } catch (Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
+    
     public function login(LoginRequest $request)
     {
         try {
