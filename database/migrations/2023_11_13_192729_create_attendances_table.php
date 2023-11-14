@@ -15,8 +15,9 @@ return new class extends Migration {
             $table->unsignedBigInteger('employee_id')->nullable();
             $table->dateTime('time_in')->nullable();
             $table->dateTime('time_out')->nullable();
+            $table->dateTime('expected_time_out')->nullable();
             $table->dateTime('working_time')->nullable();
-            $table->dateTime('date')->nullable();
+            $table->date('date')->nullable();
             $table->enum('status', ['present', 'late', 'late_and_short', 'absent', 'short_day', 'half_day', 'discrepancy', 'holiday', 'leave'])->default('present');
             $table->timestamps();
             $table->foreign('employee_id')->references('id')->on('users')->onDelete('CASCADE');
