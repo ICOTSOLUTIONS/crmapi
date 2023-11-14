@@ -22,7 +22,7 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'time_in' => 'required',
+            'time_in' => 'nullable',
         ];
     }
 
