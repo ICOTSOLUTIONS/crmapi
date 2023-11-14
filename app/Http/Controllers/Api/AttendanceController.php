@@ -179,6 +179,7 @@ class AttendanceController extends Controller
             );
             $inputs['working_time'] = Carbon::create($time_out->year, $time_out->month, $time_out->day, $duration->h, $duration->i, $duration->s);
             $inputs['status'] = $status;
+            $inputs['time_in'] = $time_in->format('Y-m-d H:i:s');
             $inputs['time_out'] = $time_out->format('Y-m-d H:i:s');
             $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30);
 
