@@ -209,7 +209,7 @@ class AttendanceController extends Controller
                 // Calculate the difference in minutes
                 $minutesDifference = $time_out->diffInMinutes($time_in);
 
-                $minutesDifference += $breaks / 60;
+                $minutesDifference += (int) $breaks / 60;
                 // Calculate the difference between time in and time out
                 $hoursDifference = $minutesDifference / 60;
 
@@ -237,7 +237,7 @@ class AttendanceController extends Controller
                     else
                         $status = 'present';
                 }
-                $inputs['working_time'] = Carbon::createFromTime($duration->h, $duration->i, $duration->s);
+                $inputs['working_time'] = Carbon::createFromTime($duration->h, $duration->i, $duration->s)->subSeconds((int) $breaks);
                 $inputs['time_out'] = $time_out->format('H:i:s');
             }
 
