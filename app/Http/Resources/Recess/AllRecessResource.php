@@ -20,7 +20,7 @@ class AllRecessResource extends JsonResource
             'id' => $this->id,
             'break_in' => ($this->break_in) ? date('h:i:s A' , strtotime($this->break_in)) : '',
             'break_out' => ($this->break_out) ? date('h:i:s A' , strtotime($this->break_out)) : '',
-            'total_time' => ($this->total_time) ? date('h:i:s' , strtotime($this->total_time)) : '',
+            'total_time' => ($this->total_time) ? $this->total_time : '',
             'date' => ($this->date) ? date('Y-m-d' , strtotime($this->date)) : '',
             $this->mergeWhen((!empty($this->attendance) && isset($resource['attendance'])), [
                 'attendance' => (!empty($this->attendance) && isset($resource['attendance'])) ? new AllAttendanceResource($this->attendance) : '',
