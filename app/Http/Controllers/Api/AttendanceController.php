@@ -197,7 +197,7 @@ class AttendanceController extends Controller
                 $time_in = Carbon::parse($attendance->time_in);
             }
 
-            $breaks = Recess::with('attendance')->find($attendance->id)->attendance->sum('total_time');
+            $breaks = Attendance::with('break')->find($attendance->id)->break->sum('total_time');
             dd($breaks);
             if (!empty($request->time_out))
                 $time_out = Carbon::parse($request->time_out);
