@@ -7,6 +7,7 @@ use App\Http\Requests\Attendance\StoreRequest;
 use App\Http\Requests\Attendance\UpdateRequest;
 use App\Http\Resources\Attendance\AllAttendanceResource;
 use App\Models\Attendance;
+use App\Models\Recess;
 use Carbon\Carbon;
 use Error;
 use Illuminate\Http\Request;
@@ -196,6 +197,8 @@ class AttendanceController extends Controller
                 $time_in = Carbon::parse($attendance->time_in);
             }
 
+            $breaks = Recess::with('attendance')->find($attendance->id)->attendance->sum('total_time');
+            dd($breaks);
             if (!empty($request->time_out))
                 $time_out = Carbon::parse($request->time_out);
             else
