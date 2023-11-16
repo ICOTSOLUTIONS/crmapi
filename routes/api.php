@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\{AttendanceController, AuthController, EmployeeController};
+use App\Http\Controllers\Api\{AttendanceController, AuthController, EmployeeController, RecessController};
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,6 +28,7 @@ Route::middleware('auth:api')->group(function(){
     Route::apiResources([
         'employee' => EmployeeController::class,
         'attendance' => AttendanceController::class,
+        'break' => RecessController::class,
     ]);
     Route::get('/status/{id}', [EmployeeController::class, 'status_change']);
 

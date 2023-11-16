@@ -13,10 +13,10 @@ return new class extends Migration {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('employee_id')->nullable();
-            $table->dateTime('time_in')->nullable();
-            $table->dateTime('time_out')->nullable();
-            $table->dateTime('expected_time_out')->nullable();
-            $table->dateTime('working_time')->nullable();
+            $table->time('time_in')->nullable();
+            $table->time('time_out')->nullable();
+            $table->time('expected_time_out')->nullable();
+            $table->time('working_time')->nullable();
             $table->date('date')->nullable();
             $table->enum('status', ['present', 'late', 'late_and_short', 'absent', 'short_day', 'half_day', 'discrepancy', 'holiday', 'leave'])->default('present');
             $table->timestamps();

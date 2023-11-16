@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Attendance;
 
 use App\Http\Resources\Employee\AllEmployeeResource;
+use App\Http\Resources\Recess\AllRecessResource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -25,7 +26,12 @@ class AllAttendanceResource extends JsonResource
             'working_time' => ($this->working_time) ? date('h:i:s' , strtotime($this->working_time)) : '',
             'date' => ($this->date) ? date('Y-m-d' , strtotime($this->date)) : '',
             'status' => $this->status ?? '',
-            'employee' => new AllEmployeeResource($this->employee),
+            $this->mergeWhen((!empty($this->break) && isset($resource['break'])), [
+                'break' => (!empty($this->break) && isset($resource['break'])) ? AllRecessResource::collection($this->break) : '',
+            ]),
+            $this->mergeWhen((!empty($this->employee) && isset($resource['employee'])), [
+                'employee' => (!empty($this->employee) && isset($resource['employee'])) ? new AllEmployeeResource($this->employee) : '',
+            ]),
         ];
     }
 }

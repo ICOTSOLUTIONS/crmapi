@@ -21,7 +21,7 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Attendance::with('employee');
+            $query = Attendance::with('employee', 'break');
             if (!empty($request->employee_id))
                 $query->where('employee_id', $request->employee_id);
             if (!empty($request->skip))
@@ -109,13 +109,13 @@ class AttendanceController extends Controller
                     else
                         $status = 'present';
                 }
-                $inputs['time_out'] = $time_out->format('Y-m-d H:i:s');
-                $inputs['working_time'] = Carbon::create($time_out->year, $time_out->month, $time_out->day, $duration->h, $duration->i, $duration->s);
+                $inputs['time_out'] = $time_out->format('H:i:s');
+                $inputs['working_time'] = Carbon::createFromTime($duration->h, $duration->i, $duration->s);
             }
 
             $inputs['employee_id'] = auth()->user()->id;
-            $inputs['time_in'] = $time_in->format('Y-m-d H:i:s');
-            $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30);
+            $inputs['time_in'] = $time_in->format('H:i:s');
+            $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30)->format('H:i:s');
             $inputs['status'] = $status;
             $inputs['date'] = $today_date;
             $attendance = Attendance::create($inputs);
@@ -191,13 +191,16 @@ class AttendanceController extends Controller
                     // The employee is on time or early
                     $status = 'present';
                 }
-            } else{
+            } else {
                 $time_in = Carbon::parse($attendance->time_in);
             }
 
-            if (!empty($request->time_out)) {
+            if (!empty($request->time_out))
                 $time_out = Carbon::parse($request->time_out);
-
+            else
+                $time_out = Carbon::parse($attendance->time_out);
+            
+            if (!empty($time_out)) {
                 // Calculate the difference in minutes
                 $minutesDifference = $time_out->diffInMinutes($time_in);
 
@@ -208,7 +211,6 @@ class AttendanceController extends Controller
                 $timeHours = round($hoursDifference, 2);
 
                 $duration = $time_out->diff($time_in);
-
                 // Check the difference and set the status
                 if ($timeHours < 4) {
                     // The employee is absent
@@ -229,13 +231,13 @@ class AttendanceController extends Controller
                     else
                         $status = 'present';
                 }
-                $inputs['working_time'] = Carbon::create($time_out->year, $time_out->month, $time_out->day, $duration->h, $duration->i, $duration->s);
-                $inputs['time_out'] = $time_out->format('Y-m-d H:i:s');
+                $inputs['working_time'] = Carbon::createFromTime($duration->h, $duration->i, $duration->s);
+                $inputs['time_out'] = $time_out->format('H:i:s');
             }
 
             $inputs['status'] = $status;
-            $inputs['time_in'] = $time_in->format('Y-m-d H:i:s');
-            $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30);
+            $inputs['time_in'] = $time_in->format('H:i:s');
+            $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30)->format('H:i:s');
 
             $attendance->update($inputs);
             DB::commit();

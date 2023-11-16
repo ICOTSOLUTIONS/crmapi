@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('recesses', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('attendance_id')->nullable();
-            $table->dateTime('break_in')->nullable();
-            $table->dateTime('break_out')->nullable();
+            $table->time('break_in')->nullable();
+            $table->time('break_out')->nullable();
             $table->string('break_type')->nullable();
-            $table->dateTime('total_time')->nullable();
-            $table->dateTime('date')->nullable();
+            $table->time('total_time')->nullable();
+            $table->date('date')->nullable();
             $table->timestamps();
             $table->foreign('attendance_id')->references('id')->on('attendances')->onDelete('CASCADE');
         });

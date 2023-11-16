@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('leaves', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('employee_id')->nullable();
-            $table->dateTime('date')->nullable();
+            $table->date('date')->nullable();
             $table->string('leave_type')->nullable();
             $table->enum('status', ['approved', 'rejected', 'pending'])->default('pending');
             $table->timestamps();
