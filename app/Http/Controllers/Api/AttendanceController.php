@@ -196,12 +196,16 @@ class AttendanceController extends Controller
             } else {
                 $time_in = Carbon::parse($attendance->time_in);
             }
-            $breaks = 0;
+
             $breaks = Attendance::with('break')->find($attendance->id)
                 ->break()
                 ->selectRaw('SUM(TIME_TO_SEC(total_time)) as total_seconds')
                 ->pluck('total_seconds')
                 ->first();
+                
+            if (empty($breaks))
+                $breaks = 0;
+
             if (!empty($request->time_out))
                 $time_out = Carbon::parse($request->time_out);
 
