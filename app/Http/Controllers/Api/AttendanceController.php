@@ -8,6 +8,7 @@ use App\Http\Requests\Attendance\UpdateRequest;
 use App\Http\Resources\Attendance\AllAttendanceResource;
 use App\Models\Attendance;
 use Carbon\Carbon;
+use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -50,7 +51,21 @@ class AttendanceController extends Controller
         try {
             DB::beginTransaction();
             $today_date = Carbon::today();
-            $time_in = Carbon::now();
+            $attendance = Attendance::where('date', $today_date)->first();
+            if (!empty($attendance))
+                throw new Error('Already Time in');
+
+            $inputs = $request->except(
+                'employee_id',
+                'date',
+                'time_in',
+                'time_out',
+                'status',
+                'working_time',
+                'expected_time_out',
+            );
+
+            $time_in = Carbon::parse($request->time_in);
             $late_time = Carbon::createFromTime(14, 19, 0); // 2:19 PM
 
             if ($time_in->gt($late_time)) {
@@ -61,14 +76,43 @@ class AttendanceController extends Controller
                 $status = 'present';
             }
 
-            $inputs = $request->except(
-                'employee_id',
-                'time_in',
-                'expected_time_out',
-                'working_time',
-                'date',
-                'status',
-            );
+            if (!empty($request->time_out)) {
+                $time_out = Carbon::parse($request->time_out);
+                // Calculate the difference in minutes
+                $minutesDifference = $time_out->diffInMinutes($time_in);
+
+                // Calculate the difference between time in and time out
+                $hoursDifference = $minutesDifference / 60;
+
+                // Round the result to the nearest half-hour
+                $timeHours = round($hoursDifference, 2);
+
+                $duration = $time_out->diff($time_in);
+
+                // Check the difference and set the status
+                if ($timeHours < 4) {
+                    // The employee is absent
+                    $status = 'absent';
+                } elseif ($timeHours >= 4 && $timeHours < 6) {
+                    // The employee is present for half of the shift
+                    $status = 'half_day';
+                } elseif ($timeHours >= 6 && $timeHours < 8.5) {
+                    // The employee is present for more than 6 hours
+                    if ($status == 'late')
+                        $status = 'late_and_short';
+                    else
+                        $status = 'short_day';
+                } elseif ($timeHours >= 8.5) {
+                    // Some other condition that you want to handle
+                    if ($status == 'late')
+                        $status = 'late';
+                    else
+                        $status = 'present';
+                }
+                $inputs['time_out'] = $time_out->format('Y-m-d H:i:s');
+                $inputs['working_time'] = Carbon::create($time_out->year, $time_out->month, $time_out->day, $duration->h, $duration->i, $duration->s);
+            }
+
             $inputs['employee_id'] = auth()->user()->id;
             $inputs['time_in'] = $time_in->format('Y-m-d H:i:s');
             $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30);
@@ -126,61 +170,71 @@ class AttendanceController extends Controller
 
         try {
             DB::beginTransaction();
-            // Assuming $timeIn is the time the employee clocked in (e.g., '2:00 PM')
-            if (!empty($request->time_in))
-                $time_in = Carbon::parse($request->time_in);
-            else
-                $time_in = Carbon::parse($attendance->time_in);
-
-            if (!empty($request->time_out))
-                $time_out = Carbon::parse($request->time_out);
-            else if (!empty($attendance->time_out))
-                $time_out = Carbon::parse($attendance->time_out);
-            else
-                $time_out = Carbon::now();
-
-            // Calculate the difference in minutes
-            $minutesDifference = $time_out->diffInMinutes($time_in);
-
-            // Calculate the difference between time in and time out
-            $hoursDifference = $minutesDifference / 60;
-
-            // Round the result to the nearest half-hour
-            $timeHours = round($hoursDifference, 2);
-
-            $duration = $time_out->diff($time_in);
-
-            // Check the difference and set the status
-            if ($timeHours < 4) {
-                // The employee is absent
-                $status = 'absent';
-            } elseif ($timeHours >= 4 && $timeHours < 6) {
-                // The employee is present for half of the shift
-                $status = 'half_day';
-            } elseif ($timeHours >= 6 && $timeHours < 8.5) {
-                // The employee is present for more than 6 hours
-                if ($attendance->status == 'late')
-                    $status = 'late_and_short';
-                else
-                    $status = 'short_day';
-            } elseif ($timeHours >= 8.5) {
-                // Some other condition that you want to handle
-                if ($attendance->status == 'late')
-                    $status = 'late';
-                else
-                    $status = 'present';
-            }
-
             $inputs = $request->except(
-                'working_time',
-                'status',
+                'time_in',
                 'time_out',
+                'status',
+                'working_time',
                 'expected_time_out',
             );
-            $inputs['working_time'] = Carbon::create($time_out->year, $time_out->month, $time_out->day, $duration->h, $duration->i, $duration->s);
+
+            // Assuming $timeIn is the time the employee clocked in (e.g., '2:00 PM')
+            if (!empty($request->time_in)) {
+                $time_in = Carbon::parse($request->time_in);
+
+                $late_time = Carbon::createFromTime(14, 19, 0); // 2:19 PM
+
+                if ($time_in->gt($late_time)) {
+                    // The employee is late
+                    $status = 'late';
+                } else {
+                    // The employee is on time or early
+                    $status = 'present';
+                }
+            } else{
+                $time_in = Carbon::parse($attendance->time_in);
+            }
+
+            if (!empty($request->time_out)) {
+                $time_out = Carbon::parse($request->time_out);
+
+                // Calculate the difference in minutes
+                $minutesDifference = $time_out->diffInMinutes($time_in);
+
+                // Calculate the difference between time in and time out
+                $hoursDifference = $minutesDifference / 60;
+
+                // Round the result to the nearest half-hour
+                $timeHours = round($hoursDifference, 2);
+
+                $duration = $time_out->diff($time_in);
+
+                // Check the difference and set the status
+                if ($timeHours < 4) {
+                    // The employee is absent
+                    $status = 'absent';
+                } elseif ($timeHours >= 4 && $timeHours < 6) {
+                    // The employee is present for half of the shift
+                    $status = 'half_day';
+                } elseif ($timeHours >= 6 && $timeHours < 8.5) {
+                    // The employee is present for more than 6 hours
+                    if ($attendance->status == 'late')
+                        $status = 'late_and_short';
+                    else
+                        $status = 'short_day';
+                } elseif ($timeHours >= 8.5) {
+                    // Some other condition that you want to handle
+                    if ($attendance->status == 'late')
+                        $status = 'late';
+                    else
+                        $status = 'present';
+                }
+                $inputs['working_time'] = Carbon::create($time_out->year, $time_out->month, $time_out->day, $duration->h, $duration->i, $duration->s);
+                $inputs['time_out'] = $time_out->format('Y-m-d H:i:s');
+            }
+
             $inputs['status'] = $status;
             $inputs['time_in'] = $time_in->format('Y-m-d H:i:s');
-            $inputs['time_out'] = $time_out->format('Y-m-d H:i:s');
             $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30);
 
             $attendance->update($inputs);

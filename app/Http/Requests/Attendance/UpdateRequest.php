@@ -22,7 +22,16 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'time_in' => 'nullable',
+            'time_out' => 'nullable',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'time_in' => 'Time In',
+            'time_out' => 'Time Out',
         ];
     }
 }

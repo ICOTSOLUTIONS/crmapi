@@ -22,7 +22,8 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'time_in' => 'nullable',
+            'time_in' => 'required',
+            'time_out' => 'nullable',
         ];
     }
 
@@ -30,6 +31,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'time_in' => 'Time In',
+            'time_out' => 'Time Out',
         ];
     }
 }
