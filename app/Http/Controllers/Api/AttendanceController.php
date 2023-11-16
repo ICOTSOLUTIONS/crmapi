@@ -198,7 +198,7 @@ class AttendanceController extends Controller
             }
 
             $breaks = Attendance::with('break')->find($attendance->id)
-                ->children()
+                ->break()
                 ->selectRaw('SUM(TIME_TO_SEC(total_time)) as total_seconds')
                 ->pluck('total_seconds')
                 ->first();
