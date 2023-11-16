@@ -204,8 +204,6 @@ class AttendanceController extends Controller
                 ->first();
             if (!empty($request->time_out))
                 $time_out = Carbon::parse($request->time_out);
-            else
-                $time_out = Carbon::parse($attendance->time_out);
 
             if (!empty($time_out)) {
                 // Calculate the difference in minutes
