@@ -126,7 +126,7 @@ class RecessController extends Controller
             DB::commit();
             return response()->json([
                 'status' => true,
-                'message' => "Recess Add Successfully.",
+                'message' => "Break Add Successfully.",
                 'break' => new AllRecessResource($break),
             ]);
         } catch (Throwable $th) {
@@ -147,14 +147,14 @@ class RecessController extends Controller
         if (empty($break)) {
             return response()->json([
                 'status' => false,
-                'message' => "Recess not found",
+                'message' => "Break not found",
             ], 404);
         }
 
         return response()->json([
             'status' => true,
-            'message' => "Recess has been successfully found",
-            'break' => new AllRecessResource($break),
+            'message' => "Break has been successfully found",
+            'break' => new AllRecessResource($break->load('attendance')),
         ]);
     }
 
@@ -168,7 +168,7 @@ class RecessController extends Controller
         if (empty($break)) {
             return response()->json([
                 'status' => false,
-                'message' => "Recess not found",
+                'message' => "Break not found",
             ], 404);
         }
 
@@ -274,7 +274,7 @@ class RecessController extends Controller
         if (empty($break)) {
             return response()->json([
                 'status' => false,
-                'message' => "Recess not found",
+                'message' => "Break not found",
             ], 404);
         }
 
@@ -284,7 +284,7 @@ class RecessController extends Controller
             DB::commit();
             return response()->json([
                 'status' => true,
-                'message' => "Recess has been successfully deleted",
+                'message' => "Break has been successfully deleted",
             ]);
         } catch (Throwable $th) {
             DB::rollback();

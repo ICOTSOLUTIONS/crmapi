@@ -21,9 +21,10 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         try {
+            $user = auth()->user();
             $query = Attendance::with('employee', 'break');
-            if (!empty($request->employee_id))
-                $query->where('employee_id', $request->employee_id);
+            if (!empty($user) && $user->role_id == 2)
+                $query->where('employee_id', $user->id);
             if (!empty($request->skip))
                 $query->skip($request->skip);
             if (!empty($request->take))
@@ -150,7 +151,7 @@ class AttendanceController extends Controller
         return response()->json([
             'status' => true,
             'message' => "Attendance has been successfully found",
-            'attendance' => new AllAttendanceResource($attendance),
+            'attendance' => new AllAttendanceResource($attendance->load('employee', 'break')),
         ]);
     }
 
@@ -199,7 +200,7 @@ class AttendanceController extends Controller
                 $time_out = Carbon::parse($request->time_out);
             else
                 $time_out = Carbon::parse($attendance->time_out);
-            
+
             if (!empty($time_out)) {
                 // Calculate the difference in minutes
                 $minutesDifference = $time_out->diffInMinutes($time_in);
