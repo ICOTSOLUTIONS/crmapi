@@ -196,13 +196,12 @@ class AttendanceController extends Controller
             } else {
                 $time_in = Carbon::parse($attendance->time_in);
             }
-
+            $breaks = 0;
             $breaks = Attendance::with('break')->find($attendance->id)
                 ->break()
                 ->selectRaw('SUM(TIME_TO_SEC(total_time)) as total_seconds')
                 ->pluck('total_seconds')
                 ->first();
-            dd($breaks);
             if (!empty($request->time_out))
                 $time_out = Carbon::parse($request->time_out);
             else
@@ -245,7 +244,7 @@ class AttendanceController extends Controller
 
             $inputs['status'] = $status;
             $inputs['time_in'] = $time_in->format('H:i:s');
-            $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30)->format('H:i:s');
+            $inputs['expected_time_out'] = $time_in->addHours(8)->addMinutes(30)->addSeconds((int) $breaks)->format('H:i:s');
 
             $attendance->update($inputs);
             DB::commit();
