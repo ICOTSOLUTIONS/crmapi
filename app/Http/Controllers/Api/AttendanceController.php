@@ -24,7 +24,7 @@ class AttendanceController extends Controller
         try {
             $user = auth()->user();
             $query = Attendance::with('employee', 'break');
-            if (!empty($user) && $user->role_id == 2)
+            if (!empty($user) && $user->role_id == 3)
                 $query->where('employee_id', $user->id);
             if (!empty($request->skip))
                 $query->skip($request->skip);
@@ -202,7 +202,7 @@ class AttendanceController extends Controller
                 ->selectRaw('SUM(TIME_TO_SEC(total_time)) as total_seconds')
                 ->pluck('total_seconds')
                 ->first();
-                
+
             if (empty($breaks))
                 $breaks = 0;
 
