@@ -53,7 +53,7 @@ class AttendanceController extends Controller
         try {
             DB::beginTransaction();
             $today_date = Carbon::today();
-            $attendance = Attendance::where('date', $today_date)->first();
+            $attendance = Attendance::where('employee_id', auth()->user()->id)->where('date', $today_date)->first();
             if (!empty($attendance))
                 throw new Error('Already Time in');
 
