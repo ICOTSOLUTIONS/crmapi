@@ -31,5 +31,6 @@ Route::middleware('auth:api')->group(function(){
         'break' => RecessController::class,
     ]);
     Route::get('/status/{id}', [EmployeeController::class, 'status_change']);
+    Route::get('/attendance/check', [AttendanceController::class, 'check']);
 
 });

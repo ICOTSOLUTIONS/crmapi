@@ -265,26 +265,21 @@ class AttendanceController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     * @param  \App\Models\Attendance $attendance
-     */
-    public function destroy(Attendance $attendance)
+    public function check()
     {
-        if (empty($attendance)) {
-            return response()->json([
-                'status' => false,
-                'message' => "Attendance not found",
-            ], 404);
-        }
-
         try {
             DB::beginTransaction();
-            $attendance->delete();
+            $time_in = false;
+            $attendance = Attendance::whereDate('date', now()->toDateString())->first();
+            if (!empty($attendance)) {
+                if (empty($attendance->time_out))
+                    $time_in = true;
+            }
             DB::commit();
             return response()->json([
                 'status' => true,
-                'message' => "Attendance has been successfully deleted",
+                'message' => "Attendance has been successfully found",
+                'time_in' => $time_in,
             ]);
         } catch (Throwable $th) {
             DB::rollback();
@@ -294,5 +289,7 @@ class AttendanceController extends Controller
             ], 500);
         }
     }
+
+
 }
 
