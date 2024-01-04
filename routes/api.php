@@ -35,8 +35,8 @@ Route::middleware('auth:api')->group(function(){
 
     //employee
     Route::get('/status/{id}', [EmployeeController::class, 'status_change']);
-    
+
     //attendance
-    Route::get('/attendance/check', [AttendanceController::class, 'check']);
+    Route::get('/attendance/check/status', [AttendanceController::class, 'check']);
 
 });
