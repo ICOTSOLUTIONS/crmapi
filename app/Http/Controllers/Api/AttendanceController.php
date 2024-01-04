@@ -23,9 +23,31 @@ class AttendanceController extends Controller
     {
         try {
             $user = auth()->user();
+            $fromDate = (!empty($request->from_date)) ? $request->from_date : '';
+            $toDate = (!empty($request->to_date)) ? $request->to_date : '';
             $query = Attendance::with('employee', 'break');
             if (!empty($user) && $user->role_id == 3)
                 $query->where('employee_id', $user->id);
+            if (!empty($request->employee_id) && isset($request->employee_id))
+                $query->where('employee_id', $request->employee_id);
+            if (!empty($fromDate) && !empty($toDate))
+                $query->whereBetween('date', [$fromDate, $toDate]);
+            if (!empty($request->search)) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', $search)
+                        ->orWhere('date', $search)
+                        ->orWherehas('employee', function ($q1) use ($search) {
+                            return $q1->where(function ($q2) use ($search) {
+                                $q2->orWhere('first_name', $search)
+                                    ->orWhere('last_name', $search)
+                                    ->orWhere('phone', $search)
+                                    ->orWhere('status', $search)
+                                    ->orWhere('email', $search);
+                            });
+                        });
+                });
+            }
             if (!empty($request->skip))
                 $query->skip($request->skip);
             if (!empty($request->take))
@@ -264,7 +286,7 @@ class AttendanceController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Remove the specified resource from storage.
      * @param  \App\Models\Attendance $attendance
