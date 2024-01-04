@@ -264,13 +264,48 @@ class AttendanceController extends Controller
             ], 500);
         }
     }
+    
+    /**
+     * Remove the specified resource from storage.
+     * @param  \App\Models\Attendance $attendance
+     */
+    public function destroy(Attendance $attendance)
+    {
+        if (empty($attendance)) {
+            return response()->json([
+                'status' => false,
+                'message' => "Attendance not found",
+            ], 404);
+        }
+
+        try {
+            DB::beginTransaction();
+            $attendance->delete();
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => "Attendance has been successfully deleted",
+            ]);
+        } catch (Throwable $th) {
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
 
     public function check()
     {
         try {
             DB::beginTransaction();
             $time_in = false;
-            $attendance = Attendance::whereDate('date', now()->toDateString())->first();
+            $user = auth()->user();
+
+            $query = Attendance::query();
+            if (!empty($user) && $user->role_id == 3)
+                $query->where('employee_id', $user->id);
+            $attendance = $query->whereDate('date', now()->toDateString())->first();
             if (!empty($attendance)) {
                 if (empty($attendance->time_out))
                     $time_in = true;
@@ -289,7 +324,5 @@ class AttendanceController extends Controller
             ], 500);
         }
     }
-
-
 }
 
