@@ -35,8 +35,7 @@ class AttendanceController extends Controller
             if (!empty($request->search)) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', $search)
-                        ->orWhere('date', $search)
+                    $q->where('date', $search)
                         ->orWherehas('employee', function ($q1) use ($search) {
                             return $q1->where(function ($q2) use ($search) {
                                 $q2->orWhere('first_name', $search)
